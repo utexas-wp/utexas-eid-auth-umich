@@ -5,7 +5,8 @@
     "require": {
         "composer-plugin-api": "^2.0",
         "composer/installers": "^2.2.0",
-        "pantheon-systems/wp-saml-auth": "^2.1"
+        "pantheon-systems/wp-saml-auth": "^2.1",
+        "cweagans/composer-patches": "^1.7"
     },
     "authors": [
         {
@@ -14,10 +15,11 @@
         }
     ],
     "extra": {
-        "class": "utexas\\EIDPlugin"
-    },
-    "config": {
-        "allow-plugins": {
-            "composer/installers": true        }
+        "class": "utexas\\EIDPlugin",
+        "patches": {
+            "pantheon-systems/wp-saml-auth": {
+                "Allow for IdP logout": "https://drupalkit.its.utexas.edu/patches/wp-saml-auth_logout.patch"
+            }
+        }
     }
 }
