@@ -1,0 +1,23 @@
+{
+    "name": "utexas/utexas-eid-auth",
+    "description": "Enables SAML EID authentication.",
+    "type": "wordpress-plugin",
+    "require": {
+        "composer-plugin-api": "^2.0",
+        "composer/installers": "^2.2.0",
+        "pantheon-systems/wp-saml-auth": "^2.1"
+    },
+    "authors": [
+        {
+            "name": "bjc2265",
+            "email": "bcornell@austin.utexas.edu"
+        }
+    ],
+    "extra": {
+        "class": "utexas\\EIDPlugin"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true        }
+    }
+}
