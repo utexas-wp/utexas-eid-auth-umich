@@ -20,12 +20,11 @@ function utexas_wpsa_autofill_new_user_email($hook)
 }
 add_action('admin_enqueue_scripts', 'utexas_wpsa_autofill_new_user_email');
 
-/////
-// After logging out of WordPress, redirect to UTLogin logoff page to force the
-// UTLogin session to be ended as well
+// After logging out of WordPress, redirect to Enterprise Authentication logout
+// page to force the session to be ended as well.
 // (More info: https://ut.service-now.com/utss/KAhome.do?number=KB0014366 )
 function utexas_logout_redirect($redirect_to, $requested_redirect_to, $user) {
-	return "https://login.utexas.edu/login/UI/Logout?goto=$redirect_to";
+	return "https://enterprise.login.utexas.edu/idp/profile/Logout";
 }
 add_filter('logout_redirect', 'utexas_logout_redirect', 10, 3 );
 
@@ -33,6 +32,7 @@ add_filter('logout_redirect', 'utexas_logout_redirect', 10, 3 );
 // by wp_safe_redirect, which only allows "local" redirects - so we have to
 // add "login.utexas.edu" to the list of hostnames that are "safe"
 function utexas_allowed_redirect_hosts($content){
+	$content[] = 'enterprise.login.utexas.edu';
 	$content[] = 'login.utexas.edu';
 	return $content;
 }
