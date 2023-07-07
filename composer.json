@@ -8,12 +8,17 @@
         "pantheon-systems/wp-saml-auth": "^2.1",
         "cweagans/composer-patches": "^1.7"
     },
+    "license": [
+        "GPL-2.0-or-later"
+    ],
     "authors": [
         {
-            "name": "bjc2265",
-            "email": "bcornell@austin.utexas.edu"
+            "name": "Web Content Management Solutions Team, Information Technology Services, The University of Texas at Austin",
+            "email": "drupal-kit-support@utlists.utexas.edu",
+            "homepage": "https://drupalkit.its.utexas.edu",
+            "role": "Developer"
         }
-    ],
+        ],
     "extra": {
         "class": "utexas\\EIDPlugin",
         "patches": {
