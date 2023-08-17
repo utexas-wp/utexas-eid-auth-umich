@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: UTexas EID Authentication (SAML)
- * Version: 1.0.1
+ * Version: 1.1.0
  * Description: UT configuration for the WP SAML Auth plugin, including overrides for password resets and email notifications. DO NOT DISABLE THIS PLUGIN if you are using EID logins on this site.
  * Author: ITS Applications, UT Austin
  * Text Domain: utexas-wp-saml-auth
