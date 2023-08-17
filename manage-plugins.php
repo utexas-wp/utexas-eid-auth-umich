@@ -44,9 +44,9 @@ function utexas_wp_saml_auth_activate() {
     add_action('admin_notices', 'utexas_activated_required_plugins__info');
     activate_plugins([("wp-saml-auth/wp-saml-auth.php")]);
   }
-  if (!is_plugin_active("pantheon-systems/wp-native-php-sessions.php")) {
+  if (!is_plugin_active("wp-native-php-sessions/pantheon-sessions.php")) {
 
     add_action('admin_notices', 'utexas_activated_required_plugins__info');
-    activate_plugins([("pantheon-systems/wp-native-php-sessions.php")]);
+    activate_plugins([("wp-native-php-sessions/pantheon-sessions.php")]);
   }
 }
