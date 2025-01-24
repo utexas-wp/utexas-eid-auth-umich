@@ -6,31 +6,58 @@
  * here, create your own mini-plugin -- see utexas-wp-saml-auth-config-overrides.php.example
  */
 
-function utexas_wpsax_filter_option( $value, $option_name ) {
+function utexas_wpsax_filter_option($value, $option_name) {
 	$defaults = array(
 		/**
-		 * Path to SimpleSAMLphp autoloader.
+		 * Type of SAML connection bridge to use.
 		 *
-		 * Follow the standard implementation by installing SimpleSAMLphp
-		 * alongside the plugin, and provide the path to its autoloader.
-		 * Alternatively, this plugin will work if it can find the
-		 * `SimpleSAML_Auth_Simple` class.
+		 * 'internal' uses OneLogin bundled library; 'simplesamlphp' uses SimpleSAMLphp.
+		 *
+		 * Defaults to SimpleSAMLphp for backwards compatibility.
 		 *
 		 * @param string
 		 */
-		/* NOTE: this setting is also being made in wp-saml-auth/inc/wp-saml-auth.php programmatically. This needed?
-        */
-		'simplesamlphp_autoload' => $_SERVER['DOCUMENT_ROOT'] . '/vendor/simplesamlphp/simplesamlphp/lib/_autoload.php',
+		'connection_type' => 'internal',
 		/**
-		 * Authentication source to pass to SimpleSAMLphp
+		 * Configuration options for OneLogin library use.
 		 *
-		 * This must be one of your configured identity providers in
-		 * SimpleSAMLphp. If the identity provider isn't configured
-		 * properly, the plugin will not work properly.
+		 * See comments with "Required:" for values you absolutely need to configure.
 		 *
-		 * @param string
+		 * @param array
 		 */
-		'auth_source'            => 'default-sp',
+		'internal_config'        => array(
+			// Validation of SAML responses is required.
+			'strict'       => true,
+			'debug'        => true,
+			'baseurl'      => home_url(),
+			'sp'           => array(
+				'entityId' => home_url() . '/onelogin',
+				'assertionConsumerService' => array(
+					'url'  => wp_login_url(),
+					'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+				),
+				'x509cert' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/sp-cert.crt'),
+				'privateKey' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/sp-key.pem'),
+			),
+			'idp'          => array(
+				// Required: Set based on provider's supplied value.
+				'entityId' => 'https://enterprise.login.utexas.edu/idp/shibboleth',
+				'singleSignOnService' => array(
+					'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+					'url' => 'https://enterprise.login.utexas.edu/idp/profile/SAML2/Redirect/SSO',
+				),
+				'singleLogoutService' => array(
+					// Required: Set based on provider's supplied value.
+				),
+				// Required: Contents of the IDP's public x509 certificate.
+				// Use file_get_contents() to load certificate contents into scope.
+				// Optional: Instead of using the x509 cert, you can specify the fingerprint and algorithm.
+				'x509cert' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/sp-cert.crt'),
+				'privateKey' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/sp-key.pem'),
+				'certFingerprint' => '',
+				'certFingerprintAlgorithm' => '',
+			),
+		),
 		/**
 		 * Whether or not to automatically provision new WordPress users.
 		 *
@@ -41,7 +68,7 @@ function utexas_wpsax_filter_option( $value, $option_name ) {
 		 *
 		 * @param bool
 		 */
-		'auto_provision'         => false,
+		'auto_provision'         => true,
 		/**
 		 * Whether or not to permit logging in with username and password.
 		 *
@@ -50,13 +77,13 @@ function utexas_wpsax_filter_option( $value, $option_name ) {
 		 *
 		 * @param bool
 		 */
-		'permit_wp_login'        => false,
+		'permit_wp_login'        => true,
 		/**
 		 * Attribute by which to get a WordPress user for a SAML user.
 		 *
 		 * @param string Supported options are 'email' and 'login'.
 		 */
-		'get_user_by'            => 'login',
+		'get_user_by'            => 'email',
 		/**
 		 * SAML attribute which includes the user_login value for a user.
 		 *
@@ -74,7 +101,7 @@ function utexas_wpsax_filter_option( $value, $option_name ) {
 		 *
 		 * @param string
 		 */
-		'display_name_attribute' => 'displayName',
+		'display_name_attribute' => 'display_name',
 		/**
 		 * SAML attribute which includes the first_name value for a user.
 		 *
@@ -92,8 +119,8 @@ function utexas_wpsax_filter_option( $value, $option_name ) {
 		 *
 		 * @param string
 		 */
-		'default_role'           => get_option( 'default_role' ),
+		'default_role'           => get_option('default_role'),
 	);
-	$value = isset( $defaults[ $option_name ] ) ? $defaults[ $option_name ] : $value;
+	$value = isset($defaults[$option_name]) ? $defaults[$option_name] : $value;
 	return $value;
 }
