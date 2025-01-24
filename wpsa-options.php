@@ -83,7 +83,7 @@ function utexas_wpsax_filter_option($value, $option_name) {
 		 *
 		 * @param string Supported options are 'email' and 'login'.
 		 */
-		'get_user_by'            => 'email',
+		'get_user_by'            => 'login',
 		/**
 		 * SAML attribute which includes the user_login value for a user.
 		 *
@@ -101,7 +101,7 @@ function utexas_wpsax_filter_option($value, $option_name) {
 		 *
 		 * @param string
 		 */
-		'display_name_attribute' => 'display_name',
+		'display_name_attribute' => 'displayName',
 		/**
 		 * SAML attribute which includes the first_name value for a user.
 		 *
