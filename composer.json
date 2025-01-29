@@ -27,5 +27,11 @@
                 "Allow for IdP logout": "https://drupalkit.its.utexas.edu/patches/wp-saml-auth_logout.patch"
             }
         }
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "cweagans/composer-patches": true
+        }
     }
 }
