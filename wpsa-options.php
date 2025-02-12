@@ -51,11 +51,8 @@ function utexas_wpsax_filter_option($value, $option_name) {
 				),
 				// Required: Contents of the IDP's public x509 certificate.
 				// Use file_get_contents() to load certificate contents into scope.
-				// Optional: Instead of using the x509 cert, you can specify the fingerprint and algorithm.
-				'x509cert' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/sp-cert.crt'),
+				'x509cert' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/idp-cert-prod.crt'),
 				'privateKey' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/sp-key.pem'),
-				'certFingerprint' => '',
-				'certFingerprintAlgorithm' => '',
 			),
 		),
 		/**
