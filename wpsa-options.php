@@ -41,18 +41,17 @@ function utexas_wpsax_filter_option($value, $option_name) {
 			),
 			'idp'          => array(
 				// Required: Set based on provider's supplied value.
-				'entityId' => 'https://enterprise.login.utexas.edu/idp/shibboleth',
+				'entityId' => 'https://enterprise-test.login.utexas.edu/idp/shibboleth',
 				'singleSignOnService' => array(
 					'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-					'url' => 'https://enterprise.login.utexas.edu/idp/profile/SAML2/Redirect/SSO',
+					'url' => 'https://enterprise-test.login.utexas.edu/idp/profile/SAML2/Redirect/SSO',
 				),
 				'singleLogoutService' => array(
 					// Required: Set based on provider's supplied value.
 				),
 				// Required: Contents of the IDP's public x509 certificate.
 				// Use file_get_contents() to load certificate contents into scope.
-				'x509cert' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/idp-cert-prod.crt'),
-				'privateKey' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/sp-key.pem'),
+				'x509cert' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/idp-cert-test.crt'),
 			),
 		),
 		/**
