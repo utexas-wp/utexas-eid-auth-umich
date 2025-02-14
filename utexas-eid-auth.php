@@ -33,6 +33,7 @@ add_filter('logout_redirect', 'utexas_logout_redirect', 10, 3 );
 // add "login.utexas.edu" to the list of hostnames that are "safe"
 function utexas_allowed_redirect_hosts($content){
 	$content[] = 'enterprise.login.utexas.edu';
+	$content[] = 'enterprise-test.login.utexas.edu';
 	$content[] = 'login.utexas.edu';
 	return $content;
 }
@@ -46,7 +47,6 @@ add_filter('wp_saml_auth_option', 'utexas_wpsax_filter_option', 10, 2 );
 require_once(plugin_dir_path( __FILE__ ) . "wpsa-options.php");
 require_once(plugin_dir_path( __FILE__ ) . "hide-passwords.php");
 require_once(plugin_dir_path( __FILE__ ) . "manage-plugins.php");
-require_once(plugin_dir_path( __FILE__ ) . "saml-login-filter.php");
 
 register_activation_hook(__FILE__, 'utexas_wp_saml_auth_activate');
 
