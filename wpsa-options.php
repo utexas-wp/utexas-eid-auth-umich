@@ -28,6 +28,7 @@ function utexas_wpsax_filter_option($value, $option_name) {
 		'internal_config'        => array(
 			// Validation of SAML responses is required.
 			'strict'       => true,
+			'allowRepeatAttributeName' => true,
 			'debug'        => true,
 			'baseurl'      => home_url(),
 			'sp'           => array(
