@@ -17,7 +17,7 @@ function utexas_wpsax_filter_option($value, $option_name) {
     'default_role'           => get_option('default_role'),
     'internal_config' => [
       'strict'       => true,
-      'debug'        => true,
+      'debug'        => false,
       'baseurl'      => home_url(),
       'sp'           => [
         'entityId' => home_url() . '/onelogin',
@@ -33,7 +33,7 @@ function utexas_wpsax_filter_option($value, $option_name) {
         'singleSignOnService' => [
           'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
           'url' => 'https://enterprise.login.utexas.edu/idp/profile/SAML2/Redirect/SSO',
-				],
+        ],
         'singleLogoutService' => [
           'https://enterprise.login.utexas.edu/idp/profile/Logout'
         ],
@@ -45,11 +45,7 @@ function utexas_wpsax_filter_option($value, $option_name) {
         'allowRepeatAttributeName' => true,
       ],
     ],
-    'security' => [
-      'allowRepeatAttributeName' => true,
-    ],
   ];
-
   $value = isset($defaults[$option_name]) ? $defaults[$option_name] : $value;
   return $value;
 }
