@@ -1,13 +1,11 @@
 {
     "name": "utexas/utexas-eid-auth",
-    "description": "Enables SAML EID authentication.",
+    "description": "UT-specific configuration for use with the WP SAML Auth plugin",
     "type": "wordpress-plugin",
     "require": {
-        "composer-plugin-api": "^2.0",
         "composer/installers": "^2.2.0",
-        "cweagans/composer-patches": "^1.7",
         "pantheon-systems/wp-saml-auth": "^2.1",
-        "pantheon-systems/wp-native-php-sessions": "1.4.3"
+        "pantheon-systems/wp-native-php-sessions": "^1.4"
     },
     "license": [
         "GPL-2.0-or-later"
@@ -19,13 +17,5 @@
             "homepage": "https://drupalkit.its.utexas.edu",
             "role": "Developer"
         }
-        ],
-    "extra": {
-        "class": "utexas\\EIDPlugin",
-        "patches": {
-            "pantheon-systems/wp-saml-auth": {
-                "Allow for IdP logout": "https://drupalkit.its.utexas.edu/patches/wp-saml-auth_logout.patch"
-            }
-        }
-    }
+    ]
 }
