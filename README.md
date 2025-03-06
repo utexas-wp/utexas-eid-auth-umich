@@ -15,8 +15,8 @@ This is a WordPress plugin that provides configuration for using the OneLogin li
 ## Configuration notes
 All pertinent configuration for the OneLogin library is found in `wpsa-options.php`. A few callouts:
 
-- **auto_provision**: (default: FALSE). For sites that should automatically create accounts from successful EID authentication, this should be changed to TRUE.
-- **permit_wp_login**: (default: FALSE). To allow any local WordPress password sign in, set to TRUE.
+- **auto_provision**: (default: `false`). For sites that should automatically create accounts from successful EID authentication, this should be changed to `true`.
+- **permit_wp_login**: (default: `false`). To allow any local WordPress password sign in, set to `true`.
 - **allowRepeatAttributeName**: Must be set to true (allow). The OneLogin SAML library includes a validation check for duplicate attribute names in the Authorization Response. The IAM team's SAML response includes two attributes with `FriendlyName="utexasEduPersonAffiliation"` . To avoid this being flagged as invalid, configuration of `samlauth.authentication` needs to include `security_allow_repeat_attribute_name: true` , which passes the value to the underlying library's configuration for `allowRepeatAttributeName`.
 - Additional configuration options can be found in:
   -  https://github.com/pantheon-systems/wp-saml-auth?tab=readme-ov-file#installation
