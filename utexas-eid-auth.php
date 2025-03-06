@@ -37,7 +37,6 @@ add_filter('logout_redirect', 'utexas_logout_redirect', 10, 3 );
 function utexas_allowed_redirect_hosts($content){
 	$content[] = 'enterprise.login.utexas.edu';
 	$content[] = 'enterprise-test.login.utexas.edu';
-	$content[] = 'login.utexas.edu';
 	return $content;
 }
 add_filter( 'allowed_redirect_hosts' , 'utexas_allowed_redirect_hosts' , 10 );
