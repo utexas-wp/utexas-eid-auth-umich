@@ -11,7 +11,7 @@
  *
  */
 
-$UTexas_EID_self_help_url = "https://idmanager.its.utexas.edu/eid_self_help/";
+$utexas_eid_self_help_url = "https://idmanager.its.utexas.edu/eid_self_help/";
 
 /////
 // add some .js to automatically fill the email field with an @eid.utetxas.edu address when creating a new user
