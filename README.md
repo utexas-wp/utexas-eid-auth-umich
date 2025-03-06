@@ -5,12 +5,12 @@ This is a WordPress plugin that provides configuration for using the OneLogin li
 ## Testing integration a WordPress site with OneLogin
 1. For the target WordPress site, run the "Push SAML data" job: https://github.austin.utexas.edu/eis1-wcs/pantheon-stewardship-tasks/actions/workflows/pantheon-site-saml-conf-push.yml
 1. Download the latest version of `utexas-eid-auth` at https://github.austin.utexas.edu/eis1-wcs/utexas-eid-auth/archive/refs/heads/master.zip
-2. Go the site's `/wp-admin/plugin-install.php` and choose "Upload plugin"
-3. Upload the zip file you downloaded.
-4. "Activate" the plugin.
-6. First attempt to sign in before an account has been provisioned `/wp-login.php?action=wp-saml-auth`. This is a configuration default that can be changed if necessary. Verify that an account is **not** automatically provisioned ("No WordPress user exists for your account. Please contact your administrator.")
-3. Provision an EID-based account for yourself `terminus wp <site>.<env> -- user create <EID> <EID>@eid.utexas.edu --role=administrator`
-4. Now attempt to sign in and confirm you can authenticate `/wp-login.php?action=wp-saml-auth`
+1. Go the site's `/wp-admin/plugin-install.php` and choose "Upload plugin"
+1. Upload the zip file you downloaded.
+1. Activate the plugin.
+1. First attempt to sign in before an account has been provisioned `/wp-login.php?action=wp-saml-auth`. This is a configuration default that can be changed if necessary. Verify that an account is **not** automatically provisioned ("No WordPress user exists for your account. Please contact your administrator.")
+1. Provision an EID-based account for yourself `terminus wp <site>.<env> -- user create <EID> <EID>@eid.utexas.edu --role=administrator`
+1. Now attempt to sign in and confirm you can authenticate `/wp-login.php?action=wp-saml-auth`
 
 ## Configuration notes
 All pertinent configuration for the OneLogin library is found in `wpsa-options.php`. A few callouts:
