@@ -3,7 +3,7 @@
 This is a WordPress plugin that provides configuration for using the OneLogin library to sign in using Enterprise Authentication.
 
 ## Testing integration a WordPress site with OneLogin
-1. For the target WordPress site, run the "Push SAML data" job: https://github.austin.utexas.edu/eis1-wcs/pantheon-stewardship-tasks/actions/workflows/pantheon-site-saml-conf-push.yml
+1. Begin the integration process by requesting integration following the instructions at https://ut.service-now.com/sp?id=kb_article&number=KB0019336
 1. Download the latest version of `utexas-eid-auth` at https://github.austin.utexas.edu/eis1-wcs/utexas-eid-auth/archive/refs/heads/master.zip
 1. Go the site's `/wp-admin/plugin-install.php` and choose "Upload plugin"
 1. Upload the zip file you downloaded.
