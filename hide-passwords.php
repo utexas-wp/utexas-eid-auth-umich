@@ -5,21 +5,21 @@ add_filter('show_password_fields', '__return_false');
 
 // override the lost password URL with a link to the UT EID self help site
 function utexas_lostpassword_url_filter($lostpassword_url, $redirect="") {
-	global $UTexas_EID_self_help_url;
-	return $UTexas_EID_self_help_url;
+	global $utexas_eid_self_help_url;
+	return $utexas_eid_self_help_url;
 }
 add_filter('lostpassword_url', 'utexas_lostpassword_url_filter', 10, 2);
 
 // override the message body of the pasword reset email (if a user still gets to that page somehow)
 function utexas_retrieve_password_message_filter($message, $key, $user_login, $user_data) {
-	global $UTexas_EID_self_help_url;
+	global $utexas_eid_self_help_url;
 	$message = __('Someone has requested a password reset for the following account:');
 	$message .=  "\r\n\r\n";
 	$message .= network_home_url( '/' ) . "\r\n\r\n";
 	$message .= sprintf(__('Username (EID): %s'), $user_login);
 	$message .= "\r\n\r\n";
 	$message .= __('Since this site uses your UT EID for authentication, you will need to use the UT EID  Self-Service Tools to change or reset your password:') . "\r\n\r\n";
-	$message .= $UTexas_EID_self_help_url . "\r\n";
+	$message .= $utexas_eid_self_help_url . "\r\n";
 }
 add_filter('retrieve_password_message', 'utexas_retrieve_password_message_filter', 10, 4);
 

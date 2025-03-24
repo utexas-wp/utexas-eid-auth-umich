@@ -1,14 +1,17 @@
 <?php
+
 /**
- * Plugin Name: UTexas EID Authentication (SAML)
- * Version: 1.2.0
- * Description: UT configuration for the WP SAML Auth plugin, including overrides for password resets and email notifications. DO NOT DISABLE THIS PLUGIN if you are using EID logins on this site.
- * Author: ITS Applications, UT Austin
- * Text Domain: utexas-wp-saml-auth
- * @package Utexas_Wp_Saml_Auth
+ * Plugin Name: UTexas EID Authentication
+ * Version: 2.0.0
+ * Description: UT-specific configuration for use with the WP SAML Auth plugin, including overrides for password resets and email notifications. DO NOT DISABLE THIS PLUGIN if you are using EID sign in on this site.
+ * Author: Web Content Management Solutions, UT Austin
+ * Text Domain: utexas-eid-auth
+ *
+ * @package utexas-eid-auth
+ *
  */
 
-$UTexas_EID_self_help_url = "https://idmanager.its.utexas.edu/eid_self_help/";
+$utexas_eid_self_help_url = "https://idmanager.its.utexas.edu/eid_self_help/";
 
 /////
 // add some .js to automatically fill the email field with an @eid.utetxas.edu address when creating a new user
@@ -33,7 +36,7 @@ add_filter('logout_redirect', 'utexas_logout_redirect', 10, 3 );
 // add "login.utexas.edu" to the list of hostnames that are "safe"
 function utexas_allowed_redirect_hosts($content){
 	$content[] = 'enterprise.login.utexas.edu';
-	$content[] = 'login.utexas.edu';
+	$content[] = 'enterprise-test.login.utexas.edu';
 	return $content;
 }
 add_filter( 'allowed_redirect_hosts' , 'utexas_allowed_redirect_hosts' , 10 );
@@ -46,7 +49,6 @@ add_filter('wp_saml_auth_option', 'utexas_wpsax_filter_option', 10, 2 );
 require_once(plugin_dir_path( __FILE__ ) . "wpsa-options.php");
 require_once(plugin_dir_path( __FILE__ ) . "hide-passwords.php");
 require_once(plugin_dir_path( __FILE__ ) . "manage-plugins.php");
-require_once(plugin_dir_path( __FILE__ ) . "saml-login-filter.php");
 
 register_activation_hook(__FILE__, 'utexas_wp_saml_auth_activate');
 
