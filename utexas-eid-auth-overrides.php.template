@@ -1,13 +1,20 @@
 <?php
 
 /**
- * NOTE: options defined here in utexas_wpsax_filter_option are the defaults for UT sites on Pantheon. If for some reason you want to override anything set here, create your own mini-plugin -- utexas-wp-saml-auth-overrides.php.template
+ * Plugin Name: UTexas EID Authentication Overrides
+ * Version: 1.0.0
+ * Description: Site-specific customications for the WP SAML Auth plugin
+ * Author: Web Content Management Solutions, UT Austin
+ * Text Domain: utexas-eid-auth-overrides
+ * @package utexas-eid-auth-overrides
  */
 
-function utexas_wpsax_filter_option($value, $option_name) {
+add_filter('wp_saml_auth_option', 'utexas_overrides_filter_option', 20, 2);
+
+function utexas_overrides_filter_option($value, $option_name) {
   $defaults = [
     'connection_type' => 'internal',
-    'auto_provision'         => false,
+    'auto_provision'         => true,
     'permit_wp_login'        => false,
     'get_user_by'            => 'login',
     'user_login_attribute'   => 'username',
@@ -17,7 +24,7 @@ function utexas_wpsax_filter_option($value, $option_name) {
     'default_role'           => get_option('default_role'),
     'internal_config' => [
       'strict'       => true,
-      'debug'        => false,
+      'debug'        => true,
       'baseurl'      => home_url(),
       'sp'           => [
         'entityId' => home_url() . '/onelogin',
@@ -29,15 +36,15 @@ function utexas_wpsax_filter_option($value, $option_name) {
         'privateKey' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/sp-key.pem'),
       ],
       'idp'          => [
-        'entityId' => 'https://enterprise.login.utexas.edu/idp/shibboleth',
-        'singleSignOnService' => [
+        'entityId' => 'https://enterprise-test.login.utexas.edu/idp/shibboleth',
+        'singleSignOnService' => array(
           'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-          'url' => 'https://enterprise.login.utexas.edu/idp/profile/SAML2/Redirect/SSO',
-        ],
+          'url' => 'https://enterprise-test.login.utexas.edu/idp/profile/SAML2/Redirect/SSO',
+        ),
         'singleLogoutService' => [
           'https://enterprise.login.utexas.edu/idp/profile/Logout'
         ],
-        'x509cert' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/idp-cert-prod.crt'),
+        'x509cert' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/idp-cert-test.crt'),
         'certFingerprint' => '',
         'certFingerprintAlgorithm' => '',
       ],
@@ -45,7 +52,11 @@ function utexas_wpsax_filter_option($value, $option_name) {
         'allowRepeatAttributeName' => true,
       ],
     ],
+    'security' => [
+      'allowRepeatAttributeName' => true,
+    ],
   ];
+
   $value = isset($defaults[$option_name]) ? $defaults[$option_name] : $value;
   return $value;
 }
