@@ -60,3 +60,6 @@ function utexas_disable_reauth($login_url, $redirect, $force_reauth) {
   return $login_url;
 }
 add_filter('login_url', 'utexas_disable_reauth', 10, 3);
+
+// Rewrite sign-in path.
+require_once(plugin_dir_path(__FILE__) . "class-rename-wp-login.php");
