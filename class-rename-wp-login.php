@@ -134,10 +134,15 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 				wp_safe_redirect( '/' );
 				die();
 			}
-			//if (is_user_logged_in() && $pagenow === 'wp-login.php') {
-			//	wp_safe_redirect('/');
-			//	die();
-			//}
+			if (is_user_logged_in() && $pagenow === 'wp-login.php') {
+				$request = parse_url(rawurldecode($_SERVER['REQUEST_URI']));
+				// Authenticated user is visiting the bare login path.
+				// Redirect to home page.
+				if (empty($request['query'])) {
+					wp_safe_redirect('/');
+					die();
+				}
+			}
 			if ( $this->wp_login_php ) {
 				if (
 					( $referer = wp_get_referer() ) &&
