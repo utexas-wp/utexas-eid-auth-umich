@@ -18,11 +18,11 @@ function utexas_wpsax_filter_option($value, $option_name) {
     'internal_config' => [
       'strict'       => true,
       'debug'        => false,
-      'baseurl'      => home_url(),
+      'baseurl'      => get_home_url(),
       'sp'           => [
-        'entityId' => home_url() . '/onelogin',
+        'entityId' => get_home_url() . '/onelogin',
         'assertionConsumerService' => [
-          'url'  => wp_login_url(),
+          'url'  => get_home_url() . '/saml/login/',
           'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
         ],
         'x509cert' => file_get_contents(ABSPATH . 'wp-content/uploads/private/saml/assets/cert/sp-cert.crt'),
