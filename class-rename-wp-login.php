@@ -3,16 +3,14 @@
 if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 
 	/**
-	 * Rename WP Login Class
+	 * This class renames the WordPress login URL to a custom route.
 	 *
-	 * This class handles the renaming of the WordPress login URL.
-	 *
-	 * @package RenameWPLogin
+	 * @package utexas-eid-auth
 	 */
 	class Rename_WP_Login {
 
 		/**
-		 * Defines the replacement login path.
+		 * Defines the replacement login path, overriding wp-login.php.
 		 *
 		 * @var string
 		 */
@@ -26,7 +24,7 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		private $wp_login_php;
 
 		/**
-		 * The class constructor. Registers our functions in WP hooks.
+		 * The class constructor. Registers our functions within WP hooks.
 		 */
 		public function __construct() {
 			register_uninstall_hook( plugin_basename( __FILE__ ), array( 'Rename_WP_Login', 'uninstall' ) );
@@ -43,7 +41,7 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		}
 
 		/**
-		 * Loads the correct template based on the visitor's url.
+		 * Overrides WordPress's base template loader to exclude wp-login-php.
 		 */
 		private function wp_template_loader() {
 			global $pagenow;
@@ -138,19 +136,21 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 			}
 			$request = rawurldecode( $_SERVER['REQUEST_URI'] );
 			$uri     = wp_parse_url( $request );
+
+			// Provide a legacy redirect for /saml_login to the new path.
 			if ( strpos( $uri['path'], '/saml_login' ) === 0 ) {
-				// Provide a legacy redirect for /saml_login to the new path.
 				wp_safe_redirect( $this->new_login_url() );
 				die();
 			}
+
 			// Redirect authenticated requests for wp-login.php to the homepage.
 			if ( is_user_logged_in() && $pagenow === 'wp-login.php' ) {
-				// Authenticated user is visiting the login path. Redirect to homepage.
 				if ( empty( $uri['query'] ) ) {
 					wp_safe_redirect( '/' );
 					die();
 				}
 			}
+
 			// If the request has been identified as "WordPress login"...
 			if ( $this->wp_login_php ) {
 				// If the path is for wp-activate.php and a query param is present...
