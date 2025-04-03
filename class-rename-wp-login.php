@@ -104,19 +104,19 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 				wp_die( __( 'This feature is not enabled.', 'rename-wp-admin-login' ) );
 			}
 
-			$request = wp_parse_url( rawurldecode( $_SERVER['REQUEST_URI'] ) );
-
-			if ( ( strpos( rawurldecode( $_SERVER['REQUEST_URI'] ), 'wp-login.php' ) !== false
-					|| ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === site_url( 'wp-login', 'relative' ) ) )
+			$request = rawurldecode( $_SERVER['REQUEST_URI'] );
+			$uri     = wp_parse_url( $request );
+			if ( ( strpos( $request, 'wp-login.php' ) !== false
+					|| ( isset( $uri['path'] ) && untrailingslashit( $uri['path'] ) === site_url( 'wp-login', 'relative' ) ) )
 				&& ! is_admin()
 			) {
 				$this->wp_login_php     = true;
 				$_SERVER['REQUEST_URI'] = trailingslashit( '/' . str_repeat( '-/', 10 ) );
 				$pagenow                = 'index.php';
-			} elseif ( ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === home_url( $this->new_login_slug, 'relative' ) ) ) {
+			} elseif ( ( isset( $uri['path'] ) && untrailingslashit( $uri['path'] ) === home_url( $this->new_login_slug, 'relative' ) ) ) {
 				$pagenow = 'wp-login.php';
-			} elseif ( ( strpos( rawurldecode( $_SERVER['REQUEST_URI'] ), 'wp-register.php' ) !== false
-					|| ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === site_url( 'wp-register', 'relative' ) ) )
+			} elseif ( ( strpos( $request, 'wp-register.php' ) !== false
+					|| ( isset( $uri['path'] ) && untrailingslashit( $uri['path'] ) === site_url( 'wp-register', 'relative' ) ) )
 				&& ! is_admin()
 			) {
 				$this->wp_login_php     = true;
@@ -130,28 +130,40 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		 */
 		public function wp_loaded() {
 			global $pagenow;
+
+			// Redirect unauthenticated requests for admin pages to the homepage.
 			if ( is_admin() && ! is_user_logged_in() && ! defined( 'DOING_AJAX' ) ) {
 				wp_safe_redirect( '/' );
 				die();
 			}
-			if (is_user_logged_in() && $pagenow === 'wp-login.php') {
-				$request = parse_url(rawurldecode($_SERVER['REQUEST_URI']));
-				// Authenticated user is visiting the bare login path.
-				// Redirect to home page.
-				if (empty($request['query'])) {
-					wp_safe_redirect('/');
+			$request = rawurldecode( $_SERVER['REQUEST_URI'] );
+			$uri     = wp_parse_url( $request );
+			if ( strpos( $uri['path'], '/saml_login' ) === 0 ) {
+				// Provide a legacy redirect for /saml_login to the new path.
+				wp_safe_redirect( $this->new_login_url() );
+				die();
+			}
+			// Redirect authenticated requests for wp-login.php to the homepage.
+			if ( is_user_logged_in() && $pagenow === 'wp-login.php' ) {
+				// Authenticated user is visiting the login path. Redirect to homepage.
+				if ( empty( $uri['query'] ) ) {
+					wp_safe_redirect( '/' );
 					die();
 				}
 			}
+			// If the request has been identified as "WordPress login"...
 			if ( $this->wp_login_php ) {
+				// If the path is for wp-activate.php and a query param is present...
 				if (
 					( $referer = wp_get_referer() ) &&
 					strpos( $referer, 'wp-activate.php' ) !== false &&
 					( $referer = wp_parse_url( $referer ) ) &&
 					! empty( $referer['query'] )
 				) {
+					// The request has been passed from wp-activate.php.
 					parse_str( $referer['query'], $referer );
 
+					// If the activation request is already active/taken...
 					if (
 						! empty( $referer['key'] ) &&
 						( $result = wpmu_activate_signup( $referer['key'] ) ) &&
@@ -166,6 +178,7 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 				}
 				$this->wp_template_loader();
 			} elseif ( $pagenow === 'wp-login.php' ) {
+				// Fallback method to ensure wp-login.php isn't accessed.
 				global $error, $interim_login, $action, $user_login;
 				@require_once ABSPATH . 'wp-login.php';
 				die;
