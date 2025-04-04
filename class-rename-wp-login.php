@@ -1,6 +1,7 @@
 <?php defined( 'ABSPATH' ) || die();
 
-if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
+// Avoid recursively registering this function after bootstrap.
+if ( defined( 'ABSPATH' ) && ! class_exists( 'Rename_WP_Login' ) ) {
 
 	/**
 	 * This class renames the WordPress login URL to a custom route.
@@ -14,45 +15,57 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		 *
 		 * @var string
 		 */
-		private $new_login_slug = 'saml/login';
+		private static $new_login_slug = 'saml/login';
 
 		/**
 		 * Whether the current request is to the WordPress default login path.
 		 *
 		 * @var bool
 		 */
-		private $wp_login_php;
+		private static $wp_login_php;
 
 		/**
-		 * The class constructor. Registers our functions within WP hooks.
+		 * Registers our functions within WP hooks.
 		 */
-		public function __construct() {
-			register_uninstall_hook( plugin_basename( __FILE__ ), array( 'Rename_WP_Login', 'uninstall' ) );
+		public static function register() {
+			register_uninstall_hook( plugin_basename( __FILE__ ), 'Rename_WP_Login::uninstall' );
+			// Hook into bootstrap stage where plugins have been loaded.
+			add_action( 'plugins_loaded', 'Rename_WP_Login::plugins_loaded', 1 );
+			// Hook into processed after WordPress has been bootstrapped.
+			add_action( 'wp_loaded', 'Rename_WP_Login::wp_loaded' );
+			// Modify the site url.
+			add_filter( 'site_url', 'Rename_WP_Login::site_url', 10, 4 );
+			// Hook into WordPress redirection process.
+			add_filter( 'wp_redirect', 'Rename_WP_Login::wp_redirect', 10, 2 );
+			// Modify the new user welcome email.
+			add_filter( 'site_option_welcome_email', 'Rename_WP_Login::welcome_email' );
+			// Do not use WordPress core's template logic for admin actions.
+			// Instead, we use a modified version in self::wp_template_loader().
+			remove_action( 'template_redirect', 'wp_redirect_admin_locations', 1000 );
+
+			// Accommodations for network/multisites.
+			add_filter( 'network_site_url', 'Rename_WP_Login::network_site_url', 10, 3 );
 			if ( is_multisite() && ! function_exists( 'is_plugin_active_for_network' ) ) {
 				require_once ABSPATH . '/wp-admin/includes/plugin.php';
 			}
-			add_action( 'plugins_loaded', array( $this, 'plugins_loaded' ), 1 );
-			add_action( 'wp_loaded', array( $this, 'wp_loaded' ) );
-			add_filter( 'site_url', array( $this, 'site_url' ), 10, 4 );
-			add_filter( 'network_site_url', array( $this, 'network_site_url' ), 10, 3 );
-			add_filter( 'wp_redirect', array( $this, 'wp_redirect' ), 10, 2 );
-			add_filter( 'site_option_welcome_email', array( $this, 'welcome_email' ) );
-			remove_action( 'template_redirect', 'wp_redirect_admin_locations', 1000 );
 		}
 
 		/**
 		 * Overrides WordPress's base template loader to exclude wp-login-php.
 		 */
-		private function wp_template_loader() {
+		private static function wp_template_loader() {
 			global $pagenow;
 			$pagenow = 'index.php';
 			if ( ! defined( 'WP_USE_THEMES' ) ) {
 				define( 'WP_USE_THEMES', true );
 			}
 			wp();
-			if ( $_SERVER['REQUEST_URI'] === trailingslashit( str_repeat( '-/', 10 ) ) ) {
+			// This logic effectively excludes `wp-login.php` from being handled
+			// by WordPress, which would otherwise load it per wp-blog-header.php.
+			if ( trailingslashit( str_repeat( '-/', 10 ) ) === $_SERVER['REQUEST_URI'] ) {
 				$_SERVER['REQUEST_URI'] = trailingslashit( '/wp-login-php/' );
 			}
+			// This completes the core logic in wp-blog-header.php.
 			require_once ABSPATH . WPINC . '/template-loader.php';
 			die;
 		}
@@ -62,37 +75,20 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		 *
 		 * @return string
 		 */
-		public function new_login_url() {
-			return home_url( '/', 'https' ) . trailingslashit( $this->new_login_slug );
-		}
-
-		/**
-		 * Callback for uninstallation. Ensures redirects are flushed.
-		 */
-		public static function uninstall() {
-			global $wpdb;
-			if ( is_multisite() ) {
-				flush_rewrite_rules();
-				$blogs = $wpdb->get_results( "SELECT blog_id FROM {$wpdb->blogs}", ARRAY_A );
-				if ( $blogs ) {
-					foreach ( $blogs as $blog ) {
-						switch_to_blog( $blog['blog_id'] );
-						flush_rewrite_rules();
-						restore_current_blog();
-					}
-				}
-			} else {
-				flush_rewrite_rules();
-			}
+		public static function new_login_url() {
+			// Using home_url() here returns the site URL, rather than the network
+			// site, in the context of a multisite.
+			return home_url( '/', 'https' ) . trailingslashit( self::$new_login_slug );
 		}
 
 		/**
 		 * Plugins are loaded. Evaluate whether the current page is login.
 		 */
-		public function plugins_loaded() {
+		public static function plugins_loaded() {
 
 			global $pagenow;
 
+			// Disallow requests for wp-signup and wp-activate.
 			if (
 				! is_multisite()
 				&& ( strpos( rawurldecode( $_SERVER['REQUEST_URI'] ), 'wp-signup' ) !== false
@@ -104,20 +100,22 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 
 			$request = rawurldecode( $_SERVER['REQUEST_URI'] );
 			$uri     = wp_parse_url( $request );
+			// Mark requests to `wp-login.php` as "this is a login request" so we can
+			// redirect to our relocated login page.
 			if ( ( strpos( $request, 'wp-login.php' ) !== false
 					|| ( isset( $uri['path'] ) && untrailingslashit( $uri['path'] ) === site_url( 'wp-login', 'relative' ) ) )
 				&& ! is_admin()
 			) {
-				$this->wp_login_php     = true;
+				self::$wp_login_php     = true;
 				$_SERVER['REQUEST_URI'] = trailingslashit( '/' . str_repeat( '-/', 10 ) );
 				$pagenow                = 'index.php';
-			} elseif ( ( isset( $uri['path'] ) && untrailingslashit( $uri['path'] ) === home_url( $this->new_login_slug, 'relative' ) ) ) {
+			} elseif ( ( isset( $uri['path'] ) && untrailingslashit( $uri['path'] ) === home_url( self::$new_login_slug, 'relative' ) ) ) {
 				$pagenow = 'wp-login.php';
 			} elseif ( ( strpos( $request, 'wp-register.php' ) !== false
 					|| ( isset( $uri['path'] ) && untrailingslashit( $uri['path'] ) === site_url( 'wp-register', 'relative' ) ) )
 				&& ! is_admin()
 			) {
-				$this->wp_login_php     = true;
+				self::$wp_login_php     = true;
 				$_SERVER['REQUEST_URI'] = trailingslashit( '/' . str_repeat( '-/', 10 ) );
 				$pagenow                = 'index.php';
 			}
@@ -126,7 +124,7 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		/**
 		 * WordPress has bootstrapped. If the request is for a login page, redirect.
 		 */
-		public function wp_loaded() {
+		public static function wp_loaded() {
 			global $pagenow;
 
 			// Redirect unauthenticated requests for admin pages to the homepage.
@@ -139,45 +137,49 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 
 			// Provide a legacy redirect for /saml_login to the new path.
 			if ( strpos( $uri['path'], '/saml_login' ) === 0 ) {
-				wp_safe_redirect( $this->new_login_url() );
+				wp_safe_redirect( self::new_login_url() );
 				die();
 			}
 
-			// Redirect authenticated requests for wp-login.php to the homepage.
-			if ( is_user_logged_in() && $pagenow === 'wp-login.php' ) {
+			// Redirect *authenticated* requests for wp-login.php to the homepage.
+			if ( is_user_logged_in() && 'wp-login.php' === $pagenow ) {
 				if ( empty( $uri['query'] ) ) {
 					wp_safe_redirect( '/' );
 					die();
 				}
 			}
 
-			// If the request has been identified as "WordPress login"...
-			if ( $this->wp_login_php ) {
+			// If the request has been identified as "this is a login request"...
+			// @see self::wp_loaded()
+			if ( self::$wp_login_php ) {
 				// If the path is for wp-activate.php and a query param is present...
+				$referer = wp_get_referer();
+				$uri     = wp_parse_url( $referer );
 				if (
-					( $referer = wp_get_referer() ) &&
+					( $referer ) &&
 					strpos( $referer, 'wp-activate.php' ) !== false &&
-					( $referer = wp_parse_url( $referer ) ) &&
-					! empty( $referer['query'] )
+					( $uri ) &&
+					! empty( $uri['query'] )
 				) {
 					// The request has been passed from wp-activate.php.
-					parse_str( $referer['query'], $referer );
+					parse_str( $uri['query'], $referer );
 
+					$result = wpmu_activate_signup( $uri['key'] );
 					// If the activation request is already active/taken...
 					if (
-						! empty( $referer['key'] ) &&
-						( $result = wpmu_activate_signup( $referer['key'] ) ) &&
+						! empty( $uri['key'] ) &&
+						( $result ) &&
 						is_wp_error( $result ) && (
 							$result->get_error_code() === 'already_active' ||
 							$result->get_error_code() === 'blog_taken'
 						)
 					) {
-						wp_safe_redirect( $this->new_login_url() . ( ! empty( $_SERVER['QUERY_STRING'] ) ? '?' . $_SERVER['QUERY_STRING'] : '' ) );
+						wp_safe_redirect( self::new_login_url() . ( ! empty( $_SERVER['QUERY_STRING'] ) ? '?' . $_SERVER['QUERY_STRING'] : '' ) );
 						die;
 					}
 				}
-				$this->wp_template_loader();
-			} elseif ( $pagenow === 'wp-login.php' ) {
+				self::wp_template_loader();
+			} elseif ( 'wp-login.php' === $pagenow ) {
 				// Fallback method to ensure wp-login.php isn't accessed.
 				global $error, $interim_login, $action, $user_login;
 				@require_once ABSPATH . 'wp-login.php';
@@ -188,17 +190,22 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		/**
 		 * Provide the new URL for the login path including parameters.
 		 *
+		 * This is used by:
+		 *   self::site_url()
+		 *   self::network_site_url()
+		 *   self::wp_redirect()
+		 *
 		 * @param string $url The old login URL.
 		 * @return string The new login URL.
 		 */
-		public function filter_wp_login_php( $url ) {
+		public static function filter_wp_login_php( $url ) {
 			if ( strpos( $url, 'wp-login.php' ) !== false ) {
 				$args = explode( '?', $url );
 				if ( isset( $args[1] ) ) {
 					parse_str( $args[1], $args );
-					$url = add_query_arg( $args, $this->new_login_url() );
+					$url = add_query_arg( $args, self::new_login_url() );
 				} else {
-					$url = $this->new_login_url();
+					$url = self::new_login_url();
 				}
 			}
 			return $url;
@@ -213,8 +220,8 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		 * @param string $blog_id The (multisite) site blog id.
 		 * @return string The prepared URL.
 		 */
-		public function site_url( $url, $path, $scheme, $blog_id ) {
-			return $this->filter_wp_login_php( $url );
+		public static function site_url( $url, $path, $scheme, $blog_id ) {
+			return self::filter_wp_login_php( $url );
 		}
 
 		/**
@@ -225,8 +232,8 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		 * @param string $scheme An HTTP scheme.
 		 * @return string The prepared URL.
 		 */
-		public function network_site_url( $url, $path, $scheme ) {
-			return $this->filter_wp_login_php( $url );
+		public static function network_site_url( $url, $path, $scheme ) {
+			return self::filter_wp_login_php( $url );
 		}
 
 		/**
@@ -236,8 +243,8 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		 * @param string $status An HTTP status code.
 		 * @return string The prepared URL.
 		 */
-		public function wp_redirect( $location, $status ) {
-			return $this->filter_wp_login_php( $location );
+		public static function wp_redirect( $location, $status ) {
+			return self::filter_wp_login_php( $location );
 		}
 
 		/**
@@ -246,8 +253,8 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		 * @param string $value The original welcome email text.
 		 * @return string The new welcome email text.
 		 */
-		public function welcome_email( $value ) {
-			return str_replace( 'wp-login.php', trailingslashit( $this->new_login_slug ), $value );
+		public static function welcome_email( $value ) {
+			return str_replace( 'wp-login.php', trailingslashit( self::$new_login_slug ), $value );
 		}
 
 		/**
@@ -255,10 +262,33 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'RenameWPLogin' ) ) {
 		 *
 		 * @return [] The new list of forbidden paths.
 		 */
-		public function forbidden_slugs() {
+		public static function forbidden_slugs() {
 			$wp = new WP();
 			return array_merge( $wp->public_query_vars, $wp->private_query_vars );
 		}
+
+		/**
+		 * Callback for uninstallation. Ensures redirections are flushed.
+		 */
+		public static function uninstall() {
+			global $wpdb;
+			if ( is_multisite() ) {
+				// Handle multisites.
+				flush_rewrite_rules();
+				$blogs = $wpdb->get_results( "SELECT blog_id FROM {$wpdb->blogs}", ARRAY_A );
+				if ( $blogs ) {
+					foreach ( $blogs as $blog ) {
+						switch_to_blog( $blog['blog_id'] );
+						flush_rewrite_rules();
+						restore_current_blog();
+					}
+				}
+			} else {
+				// Handle single sites.
+				flush_rewrite_rules();
+			}
+		}
 	}
-	new Rename_WP_Login();
+
+	Rename_WP_Login::register();
 }
