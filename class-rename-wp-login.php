@@ -60,11 +60,7 @@ if ( defined( 'ABSPATH' ) && ! class_exists( 'Rename_WP_Login' ) ) {
 				define( 'WP_USE_THEMES', true );
 			}
 			wp();
-			// This logic effectively excludes `wp-login.php` from being handled
-			// by WordPress, which would otherwise load it per wp-blog-header.php.
-			if ( trailingslashit( str_repeat( '-/', 10 ) ) === $_SERVER['REQUEST_URI'] ) {
-				$_SERVER['REQUEST_URI'] = trailingslashit( '/wp-login-php/' );
-			}
+
 			// This completes the core logic in wp-blog-header.php.
 			require_once ABSPATH . WPINC . '/template-loader.php';
 			die;
