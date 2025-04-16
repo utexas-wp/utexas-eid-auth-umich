@@ -1,13 +1,13 @@
 <?php
 
-/**
- * Plugin Name: UTexas EID Authentication Overrides
- * Version: 1.0.0
- * Description: Site-specific customications for the WP SAML Auth plugin
- * Author: Web Content Management Solutions, UT Austin
- * Text Domain: utexas-eid-auth-overrides
- * @package utexas-eid-auth-overrides
- */
+// /**
+//  * Plugin Name: UTexas EID Authentication Overrides
+//  * Version: 1.0.0
+//  * Description: Site-specific customications for the WP SAML Auth plugin
+//  * Author: Web Content Management Solutions, UT Austin
+//  * Text Domain: utexas-eid-auth-overrides
+//  * @package utexas-eid-auth-overrides
+//  */
 
 // *****************************************************************************
 // IMPORTANT: YOU MUST UNCOMMENT THE FOLLOWING LINE TO ACTIVATE THIS OVERRIDE.
