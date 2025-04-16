@@ -9,7 +9,10 @@
  * @package utexas-eid-auth-overrides
  */
 
-add_filter( 'wp_saml_auth_option', 'utexas_overrides_filter_option', 20, 2 );
+// *****************************************************************************
+// IMPORTANT: YOU MUST UNCOMMENT THE FOLLOWING LINE TO ACTIVATE THIS OVERRIDE.
+// add_filter( 'wp_saml_auth_option', 'utexas_overrides_filter_option', 20, 2 );
+// *****************************************************************************
 
 function utexas_overrides_filter_option( $value, $option_name ) {
 	$defaults = array(
