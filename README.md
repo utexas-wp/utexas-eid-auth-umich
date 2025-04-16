@@ -23,5 +23,5 @@ All pertinent configuration for the OneLogin library is found in `wpsa-options.p
   - https://github.com/SAML-Toolkits/php-saml/blob/master/advanced_settings_example.php
 
 ## Overriding configuration on a specific site
-Otions defined in `wpsa-options.php` are the defaults for UT sites on Pantheon. If for some reason you want to override anything set here, create your own mini-plugin. See `utexas-eid-auth-overrides.php.example`.
+Otions defined in `wpsa-options.php` are the defaults for UT sites on Pantheon. If for some reason you want to override anything set here, create your own mini-plugin. See `utexas-eid-auth-overrides.php`. **NOTE:** You will need to uncomment the lines indicated in that file to make it active.
 
