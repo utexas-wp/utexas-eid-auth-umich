@@ -7,7 +7,7 @@ function utexas_wpsax_filter_option( $value, $option_name ) {
 	$defaults = array(
 		'connection_type'        => 'internal',
 		'auto_provision'         => false,
-		'permit_wp_login'        => false,
+		'permit_wp_login'        => false, // Setting to 'true' is not currently supported.
 		'get_user_by'            => 'login',
 		'user_login_attribute'   => 'username',
 		'user_email_attribute'   => 'Email',
