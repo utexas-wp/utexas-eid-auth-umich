@@ -1,9 +1,17 @@
 <?php
 
 /**
- * NOTE: options defined here in utexas_wpsax_filter_option are the defaults for UT sites on Pantheon. If for some reason you want to override anything set here, create your own mini-plugin -- utexas-wp-saml-auth-overrides.php.template
+ * Plugin Name: UTexas EID Authentication Overrides
+ * Version: 1.0.0
+ * Description: Site-specific customizations for the WP SAML Auth plugin
+ * Author: Web Content Management Solutions, UT Austin
+ * Text Domain: utexas-eid-auth-overrides
+ * @package utexas-eid-auth-overrides
  */
-function utexas_wpsax_filter_option( $value, $option_name ) {
+
+add_filter( 'wp_saml_auth_option', 'utexas_overrides_filter_option', 20, 2 );
+
+function utexas_overrides_filter_option( $value, $option_name ) {
 	$defaults = array(
 		'connection_type'        => 'internal',
 		'auto_provision'         => false,
