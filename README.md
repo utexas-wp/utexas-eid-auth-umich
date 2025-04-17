@@ -23,8 +23,3 @@ Options defined in `wpsa-options.php` are the defaults for UT sites on Pantheon.
 - Additional configuration options can be found in:
   - https://github.com/pantheon-systems/wp-saml-auth?tab=readme-ov-file#installation
   - https://github.com/SAML-Toolkits/php-saml/blob/master/advanced_settings_example.php
-
-
-
-
-
