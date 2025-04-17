@@ -9,7 +9,7 @@ This is a WordPress plugin that provides configuration for using the OneLogin li
 1. Go the site's `/wp-admin/plugin-install.php` and choose "Upload plugin"
 1. Upload the zip file you downloaded.
 1. Activate the plugin.
-1. Now attempt to sign in and confirm you can authenticate `yoursite.utexas.edu/saml/login?action=wp-saml-auth`
+1. Now attempt to sign in and confirm you can authenticate `yoursite.utexas.edu/saml/login`
 
 ## Overriding configuration on a specific site
 
