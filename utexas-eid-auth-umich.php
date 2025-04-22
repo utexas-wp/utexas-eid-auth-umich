@@ -3,12 +3,21 @@
 /**
  * Plugin Name: UTexas EID Authentication
  * Version: 2.0.1
+ * Update URI: https://github.com/utexas-wp/utexas-eid-auth-umich
  * Description: UT-specific configuration for use with the WP SAML Auth plugin, including overrides for password resets and email notifications. DO NOT DISABLE THIS PLUGIN if you are using EID sign in on this site.
  * Author: Web Content Management Solutions, UT Austin
- * Text Domain: utexas-eid-auth
+ * Text Domain: utexas-eid-auth-umich
  *
- * @package utexas-eid-auth
+ * @package utexas-eid-auth-umich
  */
+
+require_once plugin_dir_path( __FILE__ ) . 'github-updater.php';
+
+// Initialize Github Updater
+new \Umich\GithubUpdater\Init([
+ 'repo' => 'utexas-wp/utexas-eid-auth-umich',
+ 'slug' => plugin_basename( __FILE__ ),
+]);
 
 $utexas_eid_self_help_url = 'https://idmanager.its.utexas.edu/eid_self_help/';
 
